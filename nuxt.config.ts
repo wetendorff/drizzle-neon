@@ -3,6 +3,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   runtimeConfig: {
-    connectionString: "",
+    databaseUrl: "",
   },
 });
