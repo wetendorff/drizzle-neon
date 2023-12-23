@@ -6,7 +6,7 @@
     </label>
     <button type="submit">Add</button>
   </form>
-  <h2>List of users</h2>
+  <h2>List of users:</h2>
   <ul>
     <li v-for="user in listOfUsers">{{ user.name }}</li>
   </ul>
