@@ -24,9 +24,3 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - run: bun install
       - run: bun run migrate
-      - uses: neondatabase/delete-branch-action@v3
-        with:
-          project_id: ${{ secrets.NEON_PROJECT_ID }}
-          branch: test_branch
-          api_key: ${{ secrets.NEON_API_KEY }}
-        if: ${{ always() }}
