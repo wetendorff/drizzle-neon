@@ -10,8 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: oven-sh/setup-bun@v1
+
+      - name: Use bun
+        uses: oven-sh/setup-bun@v1
+
       - run: bun install
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Migrate database
+        run: bun run migrate
+
       - run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
       - run: echo "DIRECT_URL=${{ secrets.DATABASE_URL }}" >> .env
-      - run: bun run migrate
+
+      - name: Deploy
+        run: railway up --service test
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
