@@ -1,0 +1,17 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  rollout_migration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+      - run: echo "DIRECT_URL=${{ secrets.DATABASE_URL }}" >> .env
+      - run: bun run migrate
