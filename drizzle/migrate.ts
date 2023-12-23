@@ -5,6 +5,7 @@ import postgres from "postgres";
 
 const connection = postgres(process.env.NUXT_DATABASE_URL!, {
   max: 1,
+  ssl: "require",
 });
 const db = drizzle(connection);
 
