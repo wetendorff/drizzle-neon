@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - main
+      - xxx
 
 jobs:
   rollout_migration:
@@ -22,7 +22,7 @@ jobs:
       - name: Migrate database
         run: bun run migrate
 
-      - run: echo "NUXT_DATABASE_URL=${{ secrets.NUXT_DATABASE_URL }}" >> .env
+      - run: echo "DATABASE_URL=${{ secrets.NUXT_DATABASE_URL }}" >> .env
 
       - name: Deploy
         run: railway up --service test
