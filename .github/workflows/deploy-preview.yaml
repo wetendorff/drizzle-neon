@@ -19,6 +19,9 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Install packages
+        run: bun install
+
       - name: Create a Neon branch
         uses: neondatabase/create-branch-action@v4
         with:
