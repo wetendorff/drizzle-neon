@@ -50,7 +50,7 @@ jobs:
           PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           SRC_ENVIRONMENT_NAME: production
           DEST_ENV_NAME: pr-${{ steps.branch-name.outputs.current_branch }}-${{ github.event.pull_request.number }}
-          PROVIDER: python
+          PROVIDER: ...
           ENV_VARS: '{"DATABASE_URL": "${{ steps.create-branch.outputs.db_url }}"}'
           branch_name: ${{ github.head_ref }}
 
