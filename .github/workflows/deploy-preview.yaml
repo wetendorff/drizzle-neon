@@ -22,7 +22,7 @@ jobs:
       - name: Create a Neon branch
         uses: neondatabase/create-branch-action@v4
         with:
-          project_id: ${{ secrets.NEON_PRODUCT_ID }}
+          project_id: ${{ secrets.NEON_PROJECT_ID }}
           branch_name: ${{ steps.branch-name.outputs.current_branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
           username: ${{ secrets.NEON_USERNAME }}
