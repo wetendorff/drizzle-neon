@@ -19,24 +19,23 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install the Neon CLI
-        run: npm install -g neonctl
-
       - name: Create a Neon branch
+        uses: neondatabase/create-branch-action@v4
+        with:
+          project_id: ${{ secrets.NEON_PRODUCT_ID }}
+          branch_name: ${{ steps.branch-name.outputs.current_branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          username: ${{ secrets.NEON_USERNAME }}
         id: create-branch
-        run: neonctl branches create --project-id ${{ secrets.NEON_PROJECT_ID }} --name ${{ steps.branch-name.outputs.current_branch }} --api-key ${{ secrets.NEON_API_KEY }} --compute --type read_write
 
-      # The branch ID is needed to display the URL of the branch in the comment.
-      - name: Get Neon branch ID
-        id: get-neon-branch-id
-        run: |
-          echo branch_id=$(neonctl branches get ${{ steps.branch-name.outputs.current_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --api-key ${{ secrets.NEON_API_KEY }} --output json | jq -r '.id') >> $GITHUB_OUTPUT
+      - run: echo project_id ${{ steps.create-branch.outputs.project_id }}
+      - run: echo branch_id ${{ steps.create-branch.outputs.branch_id }}
 
       - name: Run Drizzle Migrate
         run: |
           touch .env
-          echo DATABASE_URL=$(neonctl cs ${{ steps.branch-name.outputs.current_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --role-name ${{ secrets.PG_USERNAME }} --database-name ${{ secrets.PG_DATABASE }} --api-key ${{ secrets.NEON_API_KEY }}) >> .env
-          echo DIRECT_DATABASE_URL=$(neonctl cs ${{ steps.branch-name.outputs.current_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --role-name ${{ secrets.PG_USERNAME }} --database-name ${{ secrets.PG_DATABASE }} --api-key ${{ secrets.NEON_API_KEY }}) >> .env
+          echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
+          echo "DIRECT_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
           bun run migrate
 
       - name: Install Vercel CLI
