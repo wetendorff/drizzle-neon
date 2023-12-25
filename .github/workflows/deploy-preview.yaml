@@ -1,11 +1,16 @@
 name: Deploy Preview
-
-on: [pull_request]
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - closed
 
 jobs:
   deploy-preview:
     permissions: write-all
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -13,6 +18,15 @@ jobs:
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v7
+
+      - name: Create a Neon branch
+        uses: neondatabase/create-branch-action@v4
+        id: create-branch
+        with:
+          project_id: ${{ secrets.NEON_PROJECT_ID }}
+          branch_name: pr-${{ steps.branch-name.outputs.current_branch }}-${{ github.event.pull_request.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          username: ${{ secrets.NEON_USERNAME }}
 
       - name: Install Bun CLI
         uses: oven-sh/setup-bun@v1
@@ -22,19 +36,6 @@ jobs:
       - name: Install packages
         run: bun install
 
-      - name: Create a Neon branch
-        uses: neondatabase/create-branch-action@v4
-        with:
-          project_id: ${{ secrets.NEON_PROJECT_ID }}
-          branch_name: ${{ steps.branch-name.outputs.current_branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          username: ${{ secrets.NEON_USERNAME }}
-        id: create-branch
-
-      - run: echo db_url ${{ steps.create-branch.outputs.db_url }}
-      - run: echo host ${{ steps.create-branch.outputs.host }}
-      - run: echo branch_id ${{ steps.create-branch.outputs.branch_id }}
-
       - name: Run Drizzle Migrate
         run: |
           touch .env
@@ -42,14 +43,15 @@ jobs:
           echo "DIRECT_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
           bun run migrate
 
-      - name: Create PR environment on Railway
-        if: github.event.action == 'opened'
+      - name: Create preview environment on Railway
+        id: railway-deploy
+        if: github.event.action == 'opened' || github.event.action == 'reopened'
         uses: Faolain/railway-pr-deploy@v1.0.7
         with:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           SRC_ENVIRONMENT_NAME: production
-          DEST_ENV_NAME: pr-${{ steps.branch-name.outputs.current_branch }}-${{ github.event.pull_request.number }}
+          DEST_ENV_NAME: pr-${{ github.event.pull_request.number }}
           PROVIDER: node
           ENV_VARS: '{"DATABASE_URL": "${{ steps.create-branch.outputs.db_url }}"}'
           branch_name: ${{ github.head_ref }}
@@ -73,3 +75,30 @@ jobs:
       #     message: |
       #       Vercel Preview URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
       #       Neon branch :elephant: : https://console.neon.tech/app/projects/${{ secrets.NEON_PROJECT_ID }}/branches/${{ steps.get-neon-branch-id.outputs.branch_id }}
+
+  cleanup:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v7
+
+      - name: Delete Preview Environment on Railway
+        uses: Faolain/railway-pr-delete@v1.0.11
+        with:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          DEST_ENV_NAME: pr-${{ github.event.pull_request.number }}
+
+      # - name: Install Bun CLI
+      #   uses: oven-sh/setup-bun@v1
+      #   with:
+      #     bun-version: latest
+
+      - name: Delete Neon Branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ secrets.NEON_PROJECT_ID }}
+          branch: pr-${{ steps.branch-name.outputs.current_branch }}-${{ github.event.pull_request.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}
