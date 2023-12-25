@@ -46,6 +46,11 @@ jobs:
       - run: echo railway_project_id ${{ secrets.RAILWAY_PROJECT_ID }}
       - run: echo railway_project_id ${{ secrets.RAILWAY_TOKEN }}
 
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18" # Or another version if you prefer
+
       - name: Create preview environment on Railway
         id: railway-deploy
         if: github.event.action == 'opened' || github.event.action == 'reopened'
