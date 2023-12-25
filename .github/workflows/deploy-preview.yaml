@@ -44,6 +44,7 @@ jobs:
           bun run migrate
 
       - run: echo railway_project_id ${{ secrets.RAILWAY_PROJECT_ID }}
+      - run: echo railway_project_id ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Create preview environment on Railway
         id: railway-deploy
