@@ -5,6 +5,7 @@ on:
       - opened
       - reopened
       - closed
+      - synchronize
 
 jobs:
   deploy:
@@ -20,7 +21,7 @@ jobs:
         uses: neondatabase/create-branch-action@v4
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
-          parent: staging
+          parent: main
           branch_name: pr-${{ github.event.pull_request.number }}
           api_key: ${{ secrets.NEON_API_KEY }}
           username: ${{ secrets.NEON_USERNAME }}
