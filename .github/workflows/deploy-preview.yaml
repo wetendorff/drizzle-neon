@@ -43,6 +43,8 @@ jobs:
           echo "DIRECT_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
           bun run migrate
 
+      - run: echo railway_project_id ${{ secrets.RAILWAY_PROJECT_ID }}
+
       - name: Create preview environment on Railway
         id: railway-deploy
         if: github.event.action == 'opened' || github.event.action == 'reopened'
