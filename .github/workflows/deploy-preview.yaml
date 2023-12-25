@@ -15,9 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v7
+      # - name: Get branch name
+      #   id: branch-name
+      #   uses: tj-actions/branch-names@v7
 
       - name: Create a Neon branch
         uses: neondatabase/create-branch-action@v4
@@ -36,12 +36,12 @@ jobs:
       - name: Install packages
         run: bun install
 
-      - name: Run Drizzle Migrate
-        run: |
-          touch .env
-          echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
-          echo "DIRECT_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
-          bun run migrate
+      # - name: Run Drizzle Migrate
+      #   run: |
+      #     touch .env
+      #     echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
+      #     echo "DIRECT_URL=${{ steps.create-branch.outputs.db_url }}" >> .env
+      #     bun run migrate
 
       - run: echo railway_project_id ${{ secrets.RAILWAY_PROJECT_ID }}
       - run: echo railway_project_id ${{ secrets.RAILWAY_TOKEN }}
@@ -83,9 +83,9 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v7
+      # - name: Get branch name
+      #   id: branch-name
+      #   uses: tj-actions/branch-names@v7
 
       - name: Delete Preview Environment on Railway
         uses: Faolain/railway-pr-delete@v1.0.11
@@ -99,9 +99,9 @@ jobs:
       #   with:
       #     bun-version: latest
 
-      - name: Delete Neon Branch
-        uses: neondatabase/delete-branch-action@v3
-        with:
-          project_id: ${{ secrets.NEON_PROJECT_ID }}
-          branch: pr-${{ steps.branch-name.outputs.current_branch }}-${{ github.event.pull_request.number }}
-          api_key: ${{ secrets.NEON_API_KEY }}
+      # - name: Delete Neon Branch
+      #   uses: neondatabase/delete-branch-action@v3
+      #   with:
+      #     project_id: ${{ secrets.NEON_PROJECT_ID }}
+      #     branch: pr-${{ steps.branch-name.outputs.current_branch }}-${{ github.event.pull_request.number }}
+      #     api_key: ${{ secrets.NEON_API_KEY }}
