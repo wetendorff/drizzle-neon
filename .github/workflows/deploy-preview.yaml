@@ -32,6 +32,9 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Install Packages
+        run: bun install
+
       - name: Create PR environment on Railway
         id: railway_deploy
         if: github.event.action == 'opened' || github.event.action == 'reopened'
