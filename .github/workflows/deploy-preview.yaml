@@ -50,6 +50,7 @@ jobs:
 
       - name: Run Drizzle Migrate
         run: |
+          echo $DATABASE_URL
           bun run migrate
 
       - name: Comment on Pull Request
