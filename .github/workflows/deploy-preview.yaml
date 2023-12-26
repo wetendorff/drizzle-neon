@@ -27,10 +27,14 @@ jobs:
           username: ${{ secrets.NEON_USERNAME }}
         id: create_branch
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - name: Install Bun CLI
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: "18" # Or another version if you prefer
+          bun-version: latest
+
+      - name: Install Packages
+        run: bun install
+
       - name: Create PR environment on Railway
         id: railway_deploy
         if: github.event.action == 'opened' || github.event.action == 'reopened'
@@ -44,6 +48,17 @@ jobs:
           ENV_VARS: '{"DATABASE_URL": "postgresql+asyncpg://${{ secrets.NEON_USERNAME }}:${{ secrets.NEON_DB_PASSWORD }}@${{ steps.create_branch.outputs.host}}/neondb"}'
           branch_name: ${{ github.head_ref }}
 
+      - name: Run Drizzle Migrate
+        run: |
+          bun run migrate
+
+      - name: Comment on Pull Request
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Railway Preview URL :rocket: : ${{ steps.railway_deploy.service_domain }}
+            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ secrets.NEON_PROJECT_ID }}/branches/${{ steps.get-neon-branch-id.outputs.branch_id }}
+
   cleanup:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
@@ -55,10 +70,6 @@ jobs:
           PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           DEST_ENV_NAME: pr-${{ github.event.pull_request.number }}
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18" # Or another version if you prefer
       - name: Delete a Neon Branch 🚀
         uses: neondatabase/delete-branch-action@v3
         with:
