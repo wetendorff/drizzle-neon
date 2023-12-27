@@ -1,0 +1,38 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-production:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get branch name
+        id: branch_name
+        uses: tj-actions/branch-names@v7
+
+      - name: Get Neon Branch ID
+        id: get_neon_branch_id
+        run: |
+          echo ${{ steps.branch_name.outputs.head_ref_branch }} >> $GITHUB_OUTPUT
+          echo branch_id=$(neonctl branches get ${{ steps.branch_name.outputs.head_ref_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --api-key ${{ secrets.NEON_API_KEY }} --output json | jq -r '.id') >> $GITHUB_OUTPUT
+
+      - name: Install Bun CLI
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Packages
+        run: bun install
+
+      - name: Run Drizzle Migrate
+        run: |
+          touch .env
+          echo "DATABASE_URL=${{ steps.create_branch.outputs.db_url }}?sslmode=require" >> .env
+          bun run migrate

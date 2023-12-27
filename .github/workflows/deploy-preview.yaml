@@ -4,14 +4,12 @@ on:
     types:
       - opened
       - reopened
-      - closed
       - synchronize
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions: write-all
-    if: github.event_name != 'pull_request' || github.event.action != 'closed'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -61,21 +59,3 @@ jobs:
           message: |
             Railway Preview URL :rocket: : https://${{ steps.railway_deploy.outputs.service_domain }}
             Neon branch :elephant: : https://console.neon.tech/app/projects/${{ secrets.NEON_PROJECT_ID }}/branches/${{ steps.get-neon-branch-id.outputs.branch_id }}
-
-  cleanup:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete PR environment on Railway
-        uses: Faolain/railway-pr-delete@v1.0.11
-        with:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-          DEST_ENV_NAME: pr-${{ github.event.pull_request.number }}
-
-      - name: Delete a Neon Branch 🚀
-        uses: neondatabase/delete-branch-action@v3
-        with:
-          project_id: ${{ secrets.NEON_PROJECT_ID }}
-          branch: pr-${{ github.event.pull_request.number }}
-          api_key: ${{ secrets.NEON_API_KEY }}
