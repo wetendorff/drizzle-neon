@@ -46,13 +46,13 @@ jobs:
           SRC_ENVIRONMENT_NAME: production
           DEST_ENV_NAME: pr-${{ github.event.pull_request.number }}
           PROVIDER: node
-          ENV_VARS: '{"DATABASE_URL": "${{ steps.create-branch.outputs.db_url }}?sslmode=require"}'
+          ENV_VARS: '{"DATABASE_URL": "${{ steps.create_branch.outputs.db_url }}?sslmode=require"}'
           branch_name: ${{ github.head_ref }}
 
       - name: Run Drizzle Migrate
         run: |
           touch .env
-          echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require" >> .env
+          echo "DATABASE_URL=${{ steps.create_branch.outputs.db_url }}?sslmode=require" >> .env
           bun run migrate
 
       - name: Comment on Pull Request
