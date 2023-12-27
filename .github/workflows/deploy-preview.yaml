@@ -51,7 +51,8 @@ jobs:
 
       - name: Run Drizzle Migrate
         run: |
-          echo $DATABASE_URL
+          touch .env
+          echo "DATABASE_URL=postgresql+asyncpg://${{ secrets.NEON_USERNAME }}:${{ secrets.NEON_DB_PASSWORD }}@${{ steps.create_branch.outputs.host}}/neondb" >> .env
           bun run migrate
 
       - name: Comment on Pull Request
