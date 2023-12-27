@@ -14,17 +14,17 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get branch name
-        id: branch_name
+        id: branch-name
         uses: tj-actions/branch-names@v7
 
       - name: Install the Neon CLI
         run: npm install -g neonctl
-        
-      - name: Get Neon Branch ID
-        id: get_neon_branch_id
+
+      - name: get Neon branch ID
+        id: get-neon-branch-id
         run: |
-          echo ${{ steps.branch_name.outputs.head_ref_branch }} >> $GITHUB_OUTPUT
-          echo branch_id=$(neonctl branches get ${{ steps.branch_name.outputs.head_ref_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --api-key ${{ secrets.NEON_API_KEY }} --output json | jq -r '.id') >> $GITHUB_OUTPUT
+          echo ${{ steps.branch-name.outputs.head_ref_branch }} >> $GITHUB_OUTPUT
+          echo branch_id=$(neonctl branches get ${{ steps.branch-name.outputs.head_ref_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --api-key ${{ secrets.NEON_API_KEY }} --output json | jq -r '.id') >> $GITHUB_OUTPUT
 
       - name: Install Bun CLI
         uses: oven-sh/setup-bun@v1
@@ -37,5 +37,5 @@ jobs:
       - name: Run Drizzle Migrate
         run: |
           touch .env
-          echo "DATABASE_URL=${{ steps.create_branch.outputs.db_url }}?sslmode=require" >> .env
+          echo DATABASE_URL=$(neonctl cs ${{ secrets.NEON_MAIN_BRANCH_NAME }} --project-id ${{ secrets.NEON_PROJECT_ID }} --role-name ${{ secrets.PG_USERNAME }} --database-name ${{ secrets.PG_DATABASE }} --api-key ${{ secrets.NEON_API_KEY }}) >> .env
           bun run migrate
