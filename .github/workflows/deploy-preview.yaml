@@ -58,7 +58,7 @@ jobs:
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            Railway Preview URL :rocket: : ${{ steps.railway_deploy.service_domain }}
+            Railway Preview URL :rocket: : ${{ steps.railway_deploy.outputs.domain }}
             Neon branch :elephant: : https://console.neon.tech/app/projects/${{ secrets.NEON_PROJECT_ID }}/branches/${{ steps.get-neon-branch-id.outputs.branch_id }}
 
   cleanup:
