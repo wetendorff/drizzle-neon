@@ -17,6 +17,9 @@ jobs:
         id: branch_name
         uses: tj-actions/branch-names@v7
 
+      - name: Install the Neon CLI
+        run: npm install -g neonctl
+        
       - name: Get Neon Branch ID
         id: get_neon_branch_id
         run: |
