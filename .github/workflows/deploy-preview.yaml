@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions: write-all
     if: github.event_name != 'pull_request' || github.event.action != 'closed'
     steps:
       - name: Checkout code
@@ -50,8 +51,7 @@ jobs:
 
       - name: Run Drizzle Migrate
         run: |
-          touch .env
-          echo "DATABASE_URL=postgresql+asyncpg://${{ secrets.NEON_USERNAME }}:${{ secrets.NEON_DB_PASSWORD }}@${{ steps.create_branch.outputs.host}}/neondb" >> .env
+          echo $DATABASE_URL
           bun run migrate
 
       - name: Comment on Pull Request
