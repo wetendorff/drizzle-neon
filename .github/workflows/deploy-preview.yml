@@ -29,12 +29,18 @@ jobs:
         run: |
           echo branch_id=$(neonctl branches get ${{ steps.branch-name.outputs.current_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --api-key ${{ secrets.NEON_API_KEY }} --output json | jq -r '.id') >> $GITHUB_OUTPUT
 
+      - name: Install Bun CLI
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install Packages
+        run: bun install
+
       - name: Run Prisma Migrate
         run: |
           touch .env
           echo DATABASE_URL=$(neonctl cs ${{ steps.branch-name.outputs.current_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --role-name ${{ secrets.PG_USERNAME }} --database-name ${{ secrets.PG_DATABASE }} --api-key ${{ secrets.NEON_API_KEY }}) >> .env
           echo DIRECT_DATABASE_URL=$(neonctl cs ${{ steps.branch-name.outputs.current_branch }} --project-id ${{ secrets.NEON_PROJECT_ID }} --role-name ${{ secrets.PG_USERNAME }} --database-name ${{ secrets.PG_DATABASE }} --api-key ${{ secrets.NEON_API_KEY }}) >> .env
-          npm run migrate
+          bun run migrate
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
