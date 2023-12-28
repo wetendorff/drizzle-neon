@@ -47,14 +47,18 @@ jobs:
           ENV_VARS: '{"DATABASE_URL": "${{ steps.create_branch.outputs.db_url }}?sslmode=require"}'
           branch_name: ${{ github.head_ref }}
 
-      - name: Run Drizzle Migrate
+      - name: Set DATABASE_URL in .env
+        if: github.event.action == 'opened' || github.event.action == 'reopened'
         run: |
           touch .env
           echo "DATABASE_URL=${{ steps.create_branch.outputs.db_url }}?sslmode=require" >> .env
-          bun run migrate
+
+      - name: Run Migrations
+        run: bun run migrate
 
       - name: Comment on Pull Request
         uses: thollander/actions-comment-pull-request@v2
+        if: github.event.action == 'opened' || github.event.action == 'reopened'
         with:
           message: |
             Railway Preview URL :rocket: : https://${{ steps.railway_deploy.outputs.service_domain }}
