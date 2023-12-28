@@ -10,7 +10,8 @@
     "postinstall": "nuxt prepare",
     "migrate:generate": "bun drizzle-kit generate:pg",
     "migrate": "bun drizzle/migrate.ts",
-    "migrate:drop": "bun drizzle-kit drop"
+    "migrate:drop": "bun drizzle-kit drop",
+    "migrate:push": "bun drizzle-kit push:pg"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
@@ -21,8 +22,10 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@lucia-auth/adapter-postgresql": "^2.0.2",
     "@neondatabase/serverless": "^0.6.1",
     "drizzle-orm": "^0.29.1",
+    "lucia": "^2.7.6",
     "postgres": "^3.4.3"
   }
 }
